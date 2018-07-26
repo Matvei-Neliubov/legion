@@ -55,14 +55,26 @@ def deployLegion() {
         withCredentials([file(credentialsId: "vault-${params.Profile}", variable: 'vault')]) {
             withAWS(credentials: 'kops') {
                 wrap([$class: 'AnsiColorBuildWrapper', colorMapName: "xterm"]) {
-                    ansiblePlaybook(
-                        playbook: 'deploy-legion.yml',
-                        extras: '--vault-password-file=${vault} \
-                                --extra-vars "profile=${Profile} \
-                                base_version=${BaseVersion}  \
-                                local_version=${LocalVersion}"',
-                        colorized: true
-                    )
+                    if (params.PublicRelease){
+                        ansiblePlaybook(
+                            playbook: 'deploy-legion.yml',
+                            extras: '--vault-password-file=${vault} \
+                                     --extra-vars "profile=${Profile} \
+                                     legion_version=${LegionVersion} \
+                                     pypi_repo=${PypiRepo} \
+                                     docker_repo=${DockerRepo}" ',
+                            colorized: true
+                         )
+                    } else {
+                        ansiblePlaybook(
+                            playbook: 'deploy-legion.yml',
+                            extras: '--vault-password-file=${vault} \
+                                     --extra-vars "profile=${Profile} \
+                                     legion_version=${LegionVersion}" ',
+                            colorized: true
+                        )
+                        
+                    }
                 }
             }
         }
@@ -134,14 +146,14 @@ def runRobotTests(tags="") {
 
             kops export kubecfg --name $CLUSTER_NAME --state $CLUSTER_STATE_STORE
             PATH=../../.venv/bin:$PATH DISPLAY=:99 \
-            PROFILE=$Profile BASE_VERSION=$BaseVersion LOCAL_VERSION=$LocalVersion \
+            PROFILE=$Profile LEGION_VERSION=$LegionVersion \
             ../../.venv/bin/python3 -m robot.run --variable PATH_TO_PROFILES_DIR:$PATH_TO_PROFILES_DIR $robot_tags *.robot || true
 
             echo "Starting python tests"
             cd ../python
 
             kops export kubecfg --name $CLUSTER_NAME --state $CLUSTER_STATE_STORE
-            PROFILE=$Profile PATH_TO_PROFILES_DIR=$PATH_TO_PROFILES_DIR BASE_VERSION=$BaseVersion LOCAL_VERSION=$LocalVersion \
+            PROFILE=$Profile PATH_TO_PROFILES_DIR=$PATH_TO_PROFILES_DIR LEGION_VERSION=$LegionVersion \
             ../../.venv/bin/nosetests $nose_tags --with-xunit || true
             '''
             step([
@@ -165,15 +177,27 @@ def deployLegionEnclave() {
             file(credentialsId: "vault-${params.Profile}", variable: 'vault')]) {
             withAWS(credentials: 'kops') {
                 wrap([$class: 'AnsiColorBuildWrapper', colorMapName: "xterm"]) {
-                    ansiblePlaybook(
-                        playbook: 'deploy-legion-enclave.yml',
-                        extras: '--vault-password-file=${vault} \
-                                --extra-vars "profile=${Profile} \
-                                base_version=${BaseVersion}  \
-                                local_version=${LocalVersion} \
-                                enclave_name=${EnclaveName}"',
-                        colorized: true
-                    )
+                    if (params.PublicRelease){
+                        ansiblePlaybook(
+                            playbook: 'deploy-legion-enclave.yml',
+                            extras: '--vault-password-file=${vault} \
+                                     --extra-vars "profile=${Profile} \
+                                     legion_version=${LegionVersion} \
+                                     pypi_repo=${PypiRepo} \
+                                     docker_repo=${DockerRepo}" \
+                                     enclave_name=${EnclaveName}"',
+                            colorized: true
+                         )
+                    } else {
+                        ansiblePlaybook(
+                            playbook: 'deploy-legion-enclave.yml',
+                            extras: '--vault-password-file=${vault} \
+                                     --extra-vars "profile=${Profile} \
+                                     legion_version=${LegionVersion}" \
+                                     enclave_name=${EnclaveName}" ',
+                            colorized: true
+                        )
+                    }
                 }
             }
         }
@@ -192,7 +216,7 @@ def terminateLegionEnclave() {
                                     --extra-vars "profile=${Profile} \
                                     enclave_name=${EnclaveName}"',
                             colorized: true
-                        )
+                    )
                 }
             }
         }
@@ -226,8 +250,8 @@ def notifyBuild(String buildStatus = 'STARTED') {
     if (params.Skip_kops != null) {
         arguments = arguments + "\nskip kops *${params.Skip_kops}*"
     }
-    if (params.BaseVersion && params.LocalVersion) {
-        arguments = arguments + "\nversion *${params.BaseVersion} ${params.LocalVersion}*"
+    if (params.LegionVersion) {
+        arguments = arguments + "\nversion *${params.LegionVersion}*"
     }
 
     if (params.DeployLegion != null && params.CreateJenkinsTests != null && params.UseRegressionTests != null) {
