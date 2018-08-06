@@ -229,14 +229,18 @@ def runTests() {
     env.ROOT_DIR = rootDir()
     env.MODEL_ID = modelId()
 
+    echo 'ROOT_DIR = ' + env.ROOT_DIR
     echo 'MODEL_ID = ' + env.MODEL_ID
 
     sh """
+    export CONTAINER_DIR="`pwd`"
     cd "${env.ROOT_DIR}/tests"
-    MODEL_ID="${env.MODEL_ID}" nosetests --with-xunit
+    MODEL_ID="${env.MODEL_ID}" nosetests --with-xunit --xunit-file "\$CONTAINER_DIR/nosetests.xml"
     """
 
-    junit rootDir() + '/tests/nosetests.xml'
+    junitLogFile = 'nosetests.xml'
+    echo "Recording result of tests from $junitLogFile"
+    junit junitLogFile
 }
 
 def runPerformanceTests(testScript) {
@@ -250,12 +254,18 @@ def runPerformanceTests(testScript) {
     modelApiHost = (params.host && params.host.length() > 0) ? params.host : "http://${env.ENCLAVE_DEPLOYMENT_PREFIX}${params.Enclave}-edge.${params.Enclave}"
 
     sh """
-    echo "Starting quering ${modelApiHost}"
     pip3 install --extra-index-url \$LEGION_PACKAGE_REPOSITORY legion==\$LEGION_PACKAGE_VERSION
-    cd ${env.ROOT_DIR}/performance/ && locust -f ${env.TEST_SCRIPT} --no-web -c ${params.testUsers} -r ${params.testHatchRate} -n ${params.testRequestsCount} --host ${modelApiHost} --only-summary --logfile locust.log
+
+    export CONTAINER_DIR="`pwd`"
+    echo "Starting querying ${modelApiHost}"
+
+    cd ${env.ROOT_DIR}/performance/
+    locust -f ${env.TEST_SCRIPT} --no-web -c ${params.testUsers} -r ${params.testHatchRate} -n ${params.testRequestsCount} --host ${modelApiHost} --only-summary --logfile "\$CONTAINER_DIR/locust.log"
     """
 
-    archiveArtifacts rootDir() + '/performance/locust.log'
+    perfTestFile = 'locust.log'
+    echo "Recording result of performance tests from $perfTestFile"
+    archiveArtifacts perfTestFile
 }
 
 return this
