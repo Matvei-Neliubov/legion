@@ -144,8 +144,7 @@ def runNotebook(notebookName) {
     pip3 install --extra-index-url \$LEGION_PACKAGE_REPOSITORY legion==\$LEGION_PACKAGE_VERSION
     export CONTAINER_DIR="`pwd`"
     cd ${env.ROOT_DIR}
-    jupyter nbconvert --execute "${env.NOTEBOOK_NAME}" --stdout > notebook.html
-    cp notebook.html "\$CONTAINER_DIR"
+    jupyter nbconvert --execute "${env.NOTEBOOK_NAME}" --stdout > \$CONTAINER_DIR/notebook.html
     """
 
     sleep time: 1, unit: 'SECONDS'
@@ -166,14 +165,12 @@ def runScript(scriptPath){
     pip3 install --extra-index-url \$LEGION_PACKAGE_REPOSITORY legion==\$LEGION_PACKAGE_VERSION
     export CONTAINER_DIR="`pwd`"
     cd ${env.ROOT_DIR}
-    python3.6 "${env.TARGET_SCRIPT_PATH}" | tee script-log.txt
+    python3.6 "${env.TARGET_SCRIPT_PATH}" > \$CONTAINER_DIR/script-log.txt
 
-    echo "<html><body><h2>Script output</h2><pre>" > notebook.html
-    cat script-log.txt >> notebook.html
-    echo "</pre></body></html>" >> notebook.html
+    echo "<html><body><h2>Script output</h2><pre>" > \$CONTAINER_DIR/notebook.html
+    cat \$CONTAINER_DIR/script-log.txt >> \$CONTAINER_DIR/notebook.html
+    echo "</pre></body></html>" >> \$CONTAINER_DIR/notebook.html
 
-    cp script-log.txt "\$CONTAINER_DIR" || true
-    cp notebook.html "\$CONTAINER_DIR" || true
     sleep 15
     """
 
