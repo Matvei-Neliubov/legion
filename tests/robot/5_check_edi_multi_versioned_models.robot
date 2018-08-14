@@ -51,7 +51,7 @@ Check EDI undeploy all model instances by version
     [Tags]  edi  cli  enclave   multi_versions
     ${resp}=        Run EDI scale with version      ${MODEL_TEST_ENCLAVE}   ${TEST_MODEL_ID}    2   ${TEST_MODEL_1_VERSION}
                     Should Be Equal As Integers     ${resp.rc}              0
-                    Sleep                           10  # because no way to control explicitly scaling the model inside
+                    Sleep                           20  # because no way to control explicitly scaling the model inside
     # TODO remove sleep
     ${resp}=        Run EDI inspect with parse by model id       ${MODEL_TEST_ENCLAVE}      ${TEST_MODEL_ID}
     ${model_1}=     Find model information in edi   ${resp}      ${TEST_MODEL_ID}   ${TEST_MODEL_1_VERSION}
@@ -78,7 +78,7 @@ Check EDI scale up 1 of 2 models with different versions but the same id
     [Tags]  edi  cli  enclave   multi_versions
     ${resp}=        Run EDI scale with version      ${MODEL_TEST_ENCLAVE}   ${TEST_MODEL_ID}    2   ${TEST_MODEL_1_VERSION}
                     Should Be Equal As Integers     ${resp.rc}              0
-                    Sleep                           10  # because no way to control explicitly scaling the model inside
+                    Sleep                           20  # because no way to control explicitly scaling the model inside
     # TODO remove sleep
     ${resp}=        Run EDI inspect with parse by model id       ${MODEL_TEST_ENCLAVE}      ${TEST_MODEL_ID}
     ${model_1}=     Find model information in edi   ${resp}      ${TEST_MODEL_ID}   ${TEST_MODEL_1_VERSION}
@@ -92,7 +92,7 @@ Check EDI scale down 1 of 2 models with different versions but the same id
     [Tags]  edi  cli  enclave   multi_versions
     ${resp}=        Run EDI scale with version      ${MODEL_TEST_ENCLAVE}   ${TEST_MODEL_ID}    2   ${TEST_MODEL_1_VERSION}
                     Should Be Equal As Integers     ${resp.rc}              0
-                    Sleep                           10  # because no way to control explicitly scaling the model inside
+                    Sleep                           20  # because no way to control explicitly scaling the model inside
     # TODO remove sleep
     ${resp}=        Run EDI inspect with parse by model id       ${MODEL_TEST_ENCLAVE}      ${TEST_MODEL_ID}
     ${model_1}=     Find model information in edi   ${resp}      ${TEST_MODEL_ID}   ${TEST_MODEL_1_VERSION}
@@ -104,7 +104,7 @@ Check EDI scale down 1 of 2 models with different versions but the same id
 
     ${resp}=        Run EDI scale with version      ${MODEL_TEST_ENCLAVE}   ${TEST_MODEL_ID}    1   ${TEST_MODEL_1_VERSION}
                     Should Be Equal As Integers     ${resp.rc}              0
-                    Sleep                           10  # because no way to control explicitly scaling the model inside
+                    Sleep                           20  # because no way to control explicitly scaling the model inside
     # TODO remove sleep
     ${resp}=        Run EDI inspect with parse by model id       ${MODEL_TEST_ENCLAVE}      ${TEST_MODEL_ID}
     ${model_1}=     Find model information in edi   ${resp}      ${TEST_MODEL_ID}   ${TEST_MODEL_1_VERSION}
