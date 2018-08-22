@@ -64,7 +64,7 @@ airflow_dags_dir: ~                                        # Name of Aitflow DAG
 airflow_dags_pvc: ~                                    # Name of Airflow DAGs PVC which will be created in Cluster
 airflow_s3_bucket_name: ~                         # S3 bucket for airflow data
 airflow_s3_logs_path: ~                           # Path at S3 for airflow log
-airflow_s3_log_url: ~                             # S3 url for storing Airflow logs, it should contain bucket name and key. E.g.: airflow_s3_log_url: "s3://bucket/airflow-logs/"
+airflow_s3_logs_url: ~                             # S3 url for storing Airflow logs, it should contain bucket name and key. E.g.: airflow_s3_log_url: "s3://bucket/airflow-logs/"
 airflow_pvc: ~                                                        # Airflow PVC size (for storing DAGs code)
 
 # Airflow RDS configuration
